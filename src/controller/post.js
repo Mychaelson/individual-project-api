@@ -24,6 +24,7 @@ const postControllers = {
             include: User,
           },
         ],
+        distinct: true,
       });
 
       return res.status(200).json({
