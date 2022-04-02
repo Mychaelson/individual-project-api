@@ -12,7 +12,7 @@ router.post(
   }).single("post_image_file"),
   postControllers.createNewPost
 );
-router.patch(":id", postControllers.editPost);
-router.delete(":id", postControllers.deletePost);
+router.patch("/:id", postControllers.editPost);
+router.delete("/:id", postControllers.deletePost);
 
 module.exports = router;

@@ -78,6 +78,17 @@ const postControllers = {
   },
   deletePost: async (req, res) => {
     try {
+      const { id } = req.params;
+
+      const deletePost = await Post.destroy({
+        where: {
+          id,
+        },
+      });
+
+      res.status(200).json({
+        message: "Post Deleted",
+      });
     } catch (err) {
       console.log(err);
       return res.status(500).json({
