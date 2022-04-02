@@ -44,8 +44,6 @@ const postControllers = {
     try {
       const { caption, location, user_id } = req.body;
 
-      console.log(req.file);
-
       const uploadeFileDomain = process.env.UPLOAD_FILE_DOMAIN;
       const filePath = `post_images`;
       const { filename } = req.file;
@@ -61,16 +59,32 @@ const postControllers = {
         message: "Post Successful",
       });
     } catch (err) {
+      fs.unlinkSync(__dirname + "/../public/posts/" + req.file.filename);
       // serverErrorHandler(err);
       console.log(err);
-      fs.unlinkSync(__dirname + "/../public/posts/" + req.file.filename);
       return res.status(500).json({
         message: "Server Error",
       });
     }
   },
-  editPost: async (req, res) => {},
-  deletePost: async (req, res) => {},
+  editPost: async (req, res) => {
+    try {
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error",
+      });
+    }
+  },
+  deletePost: async (req, res) => {
+    try {
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error",
+      });
+    }
+  },
 };
 
 module.exports = postControllers;
