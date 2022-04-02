@@ -14,9 +14,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const { postRouter } = require("./router");
+const { postRouter, userRouter } = require("./router");
 
 app.use("/post", postRouter);
+app.use("/user", userRouter);
 
 app.listen(PORT, () => {
   console.log("listening in Port: ", PORT);
