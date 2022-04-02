@@ -69,6 +69,22 @@ const postControllers = {
   },
   editPost: async (req, res) => {
     try {
+      const { id } = req.params;
+
+      const editPost = await Post.update(
+        {
+          ...req.body,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      return res.status(200).json({
+        message: "Post Edited",
+      });
     } catch (err) {
       console.log(err);
       return res.status(500).json({
