@@ -1,5 +1,6 @@
 const { Post, User, Comment } = require("../lib/sequelize");
-const errorHandler = require("../lib/serverErrorHandler");
+const serverErrorHandler = require("../lib/serverErrorHandler");
+const fs = require("fs");
 
 const postControllers = {
   getAllPost: async (req, res) => {
@@ -32,10 +33,42 @@ const postControllers = {
         result,
       });
     } catch (err) {
-      errorHandler(err);
+      // serverErrorHandler(err);
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error",
+      });
     }
   },
-  createNewPost: async (req, res) => {},
+  createNewPost: async (req, res) => {
+    try {
+      const { caption, location, user_id } = req.body;
+
+      console.log(req.file);
+
+      const uploadeFileDomain = process.env.UPLOAD_FILE_DOMAIN;
+      const filePath = `post_images`;
+      const { filename } = req.file;
+
+      const newPost = await Post.create({
+        image_url: `${uploadeFileDomain}/${filePath}/${filename}`,
+        caption,
+        location,
+        user_id,
+      });
+
+      return res.status(200).json({
+        message: "Post Successful",
+      });
+    } catch (err) {
+      // serverErrorHandler(err);
+      console.log(err);
+      fs.unlinkSync(__dirname + "/../public/posts/" + req.file.filename);
+      return res.status(500).json({
+        message: "Server Error",
+      });
+    }
+  },
   editPost: async (req, res) => {},
   deletePost: async (req, res) => {},
 };

@@ -16,6 +16,8 @@ app.use(express.json());
 
 const { postRouter, authRouter } = require("./router");
 
+app.use("/post_images", express.static(`${__dirname}/public/posts`));
+
 app.use("/post", postRouter);
 app.use("/auth", authRouter);
 
