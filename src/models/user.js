@@ -20,6 +20,10 @@ const User = (sequelize) => {
     avatar_img: {
       type: DataTypes.STRING,
     },
+    is_verivied: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   });
 };
 
