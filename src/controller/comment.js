@@ -20,7 +20,7 @@ const commentControllers = {
         distinct: true,
       });
 
-      console.log(allComment);
+      // console.log(allComment);
 
       if (!allComment.rows.length) {
         return res.status(400).json({
@@ -30,6 +30,7 @@ const commentControllers = {
 
       return res.status(200).json({
         message: "Find all comments",
+        result: allComment,
       });
     } catch (err) {
       console.log(err);
@@ -40,6 +41,17 @@ const commentControllers = {
   },
   postNewComment: async (req, res) => {
     try {
+      const { post_id, user_id, comment } = req.body;
+
+      const newComment = await Comment.create({
+        comment,
+        post_id,
+        user_id,
+      });
+
+      return res.status(200).json({
+        message: "Comment posted",
+      });
     } catch (err) {
       console.log(err);
       return res.status(500).json({
