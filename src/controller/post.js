@@ -141,6 +141,43 @@ const postControllers = {
       });
     }
   },
+  decrementPostLikes: async (req, res) => {
+    try {
+      const { user_id, post_id } = req.params;
+
+      const hasUserLikeThePost = await Like.findOne({
+        where: {
+          user_id,
+          post_id,
+        },
+      });
+
+      if (!hasUserLikeThePost) {
+        return res.status(400).json({
+          message: "User have not like the post",
+        });
+      }
+
+      const deleteLike = await Like.destroy({
+        where: {
+          user_id,
+          post_id,
+        },
+      });
+
+      await Post.increment({ like_count: -1 }, { where: { id: post_id } });
+
+      return res.status(200).json({
+        message: "Like Deleted",
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error",
+      });
+    }
+  },
+  // getAllUserthatLikeThePost: async (req, res) => {},
 };
 
 module.exports = postControllers;
