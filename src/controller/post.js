@@ -28,6 +28,14 @@ const postControllers = {
         distinct: true,
       });
 
+      // console.log(result);
+
+      if (!result.rows.length) {
+        return res.status(400).json({
+          message: "There are no post yet",
+        });
+      }
+
       return res.status(200).json({
         message: "find all post",
         result,
