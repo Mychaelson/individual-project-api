@@ -1,4 +1,4 @@
-const { Post, User, Comment } = require("../lib/sequelize");
+const { Post, User, Comment, Like } = require("../lib/sequelize");
 const serverErrorHandler = require("../lib/serverErrorHandler");
 const fs = require("fs");
 
@@ -108,6 +108,35 @@ const postControllers = {
     } catch (err) {
       console.log(err);
       return res.status(500).json({
+        message: "Server Error",
+      });
+    }
+  },
+  incrementPostLikes: async (req, res) => {
+    try {
+      const { post_id, user_id } = req.params;
+
+      const [likedPost, createLike] = await Like.findOrCreate({
+        where: {
+          post_id,
+          user_id,
+        },
+      });
+
+      if (!createLike) {
+        return res.status(400).json({
+          message: "User has liked the post",
+        });
+      }
+
+      await Post.increment({ like_count: 1 }, { where: { id: post_id } });
+
+      return res.status(200).json({
+        message: "Like added",
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
         message: "Server Error",
       });
     }

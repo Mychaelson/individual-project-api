@@ -40,7 +40,11 @@ const authControllers = {
         message: "User Added",
       });
     } catch (err) {
-      serverErrorHandler(err);
+      // serverErrorHandler(err);
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error",
+      });
     }
   },
   loginUser: async (req, res) => {
@@ -81,7 +85,11 @@ const authControllers = {
         },
       });
     } catch (err) {
-      serverErrorHandler(err);
+      // serverErrorHandler(err);
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error",
+      });
     }
   },
 };

@@ -14,5 +14,6 @@ router.post(
 );
 router.patch("/:id", postControllers.editPost);
 router.delete("/:id", postControllers.deletePost);
+router.post("/:post_id/likes/:user_id", postControllers.incrementPostLikes);
 
 module.exports = router;
