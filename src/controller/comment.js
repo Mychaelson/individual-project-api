@@ -1,4 +1,5 @@
 const { Comment, User } = require("../lib/sequelize");
+const serverErrorHandler = require("../lib/serverErrorHandler");
 
 const commentControllers = {
   getAllComment: async (req, res) => {
@@ -33,10 +34,7 @@ const commentControllers = {
         result: allComment,
       });
     } catch (err) {
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
   postNewComment: async (req, res) => {
@@ -53,10 +51,7 @@ const commentControllers = {
         message: "Comment posted",
       });
     } catch (err) {
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
 };

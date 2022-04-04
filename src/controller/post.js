@@ -45,11 +45,7 @@ const postControllers = {
         result,
       });
     } catch (err) {
-      // serverErrorHandler(err);
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
   createNewPost: async (req, res) => {
@@ -73,10 +69,6 @@ const postControllers = {
     } catch (err) {
       fs.unlinkSync(__dirname + "/../public/posts/" + req.file.filename);
       serverErrorHandler(err, req, res);
-      // console.log(err);
-      // return res.status(500).json({
-      //   message: "Server Error",
-      // });
     }
   },
   editPost: async (req, res) => {
@@ -99,10 +91,7 @@ const postControllers = {
         message: "Post Edited",
       });
     } catch (err) {
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
   deletePost: async (req, res) => {
@@ -137,10 +126,7 @@ const postControllers = {
         message: "Post Deleted",
       });
     } catch (err) {
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
   incrementPostLikes: async (req, res) => {
@@ -166,10 +152,7 @@ const postControllers = {
         message: "Like added",
       });
     } catch (err) {
-      console.log(err);
-      res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
   decrementPostLikes: async (req, res) => {
@@ -202,10 +185,7 @@ const postControllers = {
         message: "Like Deleted",
       });
     } catch (err) {
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
   // getAllUserthatLikeThePost: async (req, res) => {},

@@ -24,10 +24,7 @@ const userControllers = {
         // posts,
       });
     } catch (err) {
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
   editUser: async (req, res) => {
@@ -79,10 +76,7 @@ const userControllers = {
       });
     } catch (err) {
       fs.unlinkSync(__dirname + "/../public/posts/" + req.file.filename);
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
     }
   },
 };
