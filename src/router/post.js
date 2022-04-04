@@ -1,10 +1,12 @@
 const router = require("express").Router();
 const { postControllers } = require("../controller");
 const fileUploader = require("../lib/uploader");
+const { authorizedLoggedInUser } = require("../middleware/authMiddleware");
 
-router.get("/", postControllers.getAllPost);
+router.get("/", authorizedLoggedInUser, postControllers.getAllPost);
 router.post(
   "/",
+  authorizedLoggedInUser,
   fileUploader({
     destinationFolder: "posts",
     fileType: "image",
@@ -12,7 +14,7 @@ router.post(
   }).single("post_image_file"),
   postControllers.createNewPost
 );
-router.patch("/:id", postControllers.editPost);
+router.patch("/:id", authorizedLoggedInUser, postControllers.editPost);
 router.delete("/:id", postControllers.deletePost);
 router.post("/:post_id/likes/:user_id", postControllers.incrementPostLikes);
 router.delete("/:post_id/likes/:user_id", postControllers.decrementPostLikes);

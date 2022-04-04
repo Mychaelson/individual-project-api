@@ -60,7 +60,7 @@ const postControllers = {
         image_url: `${uploadeFileDomain}/${filePath}/${filename}`,
         caption,
         location,
-        user_id,
+        user_id: req.token.id,
       });
 
       return res.status(200).json({
@@ -86,6 +86,7 @@ const postControllers = {
         {
           where: {
             id,
+            user_id: req.token.id,
           },
         }
       );
@@ -107,6 +108,7 @@ const postControllers = {
       const deletePost = await Post.destroy({
         where: {
           id,
+          user_id: req.token.id,
         },
       });
 

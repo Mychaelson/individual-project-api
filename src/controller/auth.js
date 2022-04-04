@@ -2,6 +2,7 @@ const { User, Password } = require("../lib/sequelize");
 const serverErrorHandler = require("../lib/serverErrorHandler");
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
+const { generateToken } = require("../lib/jwt");
 
 const authControllers = {
   registerUser: async (req, res) => {
@@ -77,11 +78,13 @@ const authControllers = {
 
       delete findUser.dataValues.password;
 
+      const token = generateToken({ id: findUser.id });
+
       return res.status(200).json({
         message: "User Logged In",
         result: {
           findUser,
-          token: 12345,
+          token,
         },
       });
     } catch (err) {
