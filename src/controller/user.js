@@ -10,34 +10,18 @@ const userControllers = {
         where: {
           id: user_id,
         },
-        // include: [
-        //   {
-        //     model: Post,
-        //     where: {
-        //       user_id,
-        //     },
-        //   },
-        // ],
+        include: [
+          {
+            model: Post,
+            as: "user_posts",
+          },
+        ],
       });
-
-      if (getUserProfile === null) {
-        return res.status(400).json({
-          message: "User not found",
-        });
-      }
-
-      const userPost = await Post.findAll({
-        where: {
-          user_id,
-        },
-      });
-
-      // need to return the user taht include the post
 
       return res.status(200).json({
         message: "User Found",
         profile: getUserProfile,
-        posts: userPost,
+        // posts,
       });
     } catch (err) {
       console.log(err);
@@ -53,7 +37,10 @@ const userControllers = {
 
       const uploadeFileDomain = process.env.UPLOAD_FILE_DOMAIN;
       const filePath = `avatar_images`; // based on the middleware
-      const { filename } = req.file;
+      const filename = req.file?.filename;
+
+      if (req.file) {
+      }
 
       let isUsernameUnique;
 
@@ -73,7 +60,9 @@ const userControllers = {
 
       const editProfile = await User.update(
         {
-          avatar_image: `${uploadeFileDomain}/${filePath}/${filename}`, // klo ada bru masuk
+          avatar_img: req.file
+            ? `${uploadeFileDomain}/${filePath}/${filename}`
+            : undefined, // klo ada bru masuk
           full_name,
           bio,
           username,

@@ -20,8 +20,8 @@ const Comment = require("../models/comment")(sequelize);
 // relationship of the models
 
 // between post and the owner of the post (1: M)
-Post.belongsTo(User, { foreignKey: "user_id" });
-User.hasMany(Post, { foreignKey: "user_id" });
+Post.belongsTo(User, { foreignKey: "user_id", as: "user_posts" });
+User.hasMany(Post, { foreignKey: "user_id", as: "user_posts" });
 
 // between the user and the password for the auth purposes (1:1)
 Password.belongsTo(User, { foreignKey: "user_id" });

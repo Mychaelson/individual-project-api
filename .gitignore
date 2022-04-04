@@ -1,3 +1,4 @@
 node_modules
 .env
-src/public/**
+src/public/posts/**
+src/public/profile_pictures/**

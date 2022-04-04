@@ -1,14 +1,17 @@
 const { Post, User, Comment, Like } = require("../lib/sequelize");
 const serverErrorHandler = require("../lib/serverErrorHandler");
 const fs = require("fs");
+const uploadFileDomain = require("../config/uploadFile");
 
 const postControllers = {
   getAllPost: async (req, res) => {
     try {
-      const { _limit = 10, _page = 1 } = req.query;
+      const { _limit = 10, _page = 1, _sortBy = "", _sortDir = "" } = req.query;
 
       delete req.query._limit;
       delete req.query._page;
+      delete req.query._sortBy;
+      delete req.query._sortDir;
 
       const result = await Post.findAndCountAll({
         where: {
@@ -26,6 +29,7 @@ const postControllers = {
           },
         ],
         distinct: true,
+        order: _sortBy ? [[_sortBy, _sortDir]] : undefined,
       });
 
       // console.log(result);
@@ -52,7 +56,7 @@ const postControllers = {
     try {
       const { caption, location, user_id } = req.body;
 
-      const uploadeFileDomain = process.env.UPLOAD_FILE_DOMAIN;
+      const uploadeFileDomain = uploadFileDomain;
       const filePath = `post_images`;
       const { filename } = req.file;
 
@@ -60,7 +64,7 @@ const postControllers = {
         image_url: `${uploadeFileDomain}/${filePath}/${filename}`,
         caption,
         location,
-        user_id: req.token.id,
+        user_id,
       });
 
       return res.status(200).json({
@@ -68,11 +72,11 @@ const postControllers = {
       });
     } catch (err) {
       fs.unlinkSync(__dirname + "/../public/posts/" + req.file.filename);
-      // serverErrorHandler(err);
-      console.log(err);
-      return res.status(500).json({
-        message: "Server Error",
-      });
+      serverErrorHandler(err, req, res);
+      // console.log(err);
+      // return res.status(500).json({
+      //   message: "Server Error",
+      // });
     }
   },
   editPost: async (req, res) => {
@@ -105,12 +109,29 @@ const postControllers = {
     try {
       const { id } = req.params;
 
+      const findPost = await Post.findOne({
+        where: {
+          id,
+        },
+      });
+
       const deletePost = await Post.destroy({
         where: {
           id,
-          user_id: req.token.id,
+          user_id: req.token?.id,
         },
       });
+
+      const postImgUrl = findPost.dataValues.image_url;
+      const postImgSplitName = postImgUrl.split("/");
+
+      // console.log(postImgSplitName[postImgSplitName.length - 1]);
+
+      fs.unlinkSync(
+        __dirname +
+          "/../public/posts/" +
+          postImgSplitName[postImgSplitName.length - 1]
+      );
 
       res.status(200).json({
         message: "Post Deleted",
