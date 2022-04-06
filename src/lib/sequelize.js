@@ -28,8 +28,16 @@ Password.belongsTo(User, { foreignKey: "user_id" });
 User.hasOne(Password, { foreignKey: "user_id" });
 
 // between the post and the user that have like the post  (M:M / super many to many)
-Post.belongsToMany(User, { through: Like, foreignKey: "post_id" });
-User.belongsToMany(Post, { through: Like, foreignKey: "user_id" });
+Post.belongsToMany(User, {
+  through: Like,
+  foreignKey: "post_id",
+  as: "post_like",
+});
+User.belongsToMany(Post, {
+  through: Like,
+  foreignKey: "user_id",
+  as: "post_like",
+});
 User.hasMany(Like, { foreignKey: "user_id" });
 Like.belongsTo(User, { foreignKey: "user_id" });
 Post.hasMany(Like, { foreignKey: "post_id" });

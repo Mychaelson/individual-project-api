@@ -22,17 +22,25 @@ const postControllers = {
         include: [
           {
             model: User,
+            as: "user_posts",
           },
           {
             model: Comment,
             include: User,
+            limit: 5,
+          },
+          {
+            model: User,
+            as: "post_like",
+            where: {
+              id: req.token.id,
+            },
+            required: false,
           },
         ],
-        distinct: true,
+        // distinct: true,
         order: _sortBy ? [[_sortBy, _sortDir]] : undefined,
       });
-
-      // console.log(result);
 
       if (!result.rows.length) {
         return res.status(400).json({
@@ -60,7 +68,7 @@ const postControllers = {
         image_url: `${uploadeFileDomain}/${filePath}/${filename}`,
         caption,
         location,
-        user_id,
+        user_id: req.token.id,
       });
 
       return res.status(200).json({
@@ -114,8 +122,6 @@ const postControllers = {
       const postImgUrl = findPost.dataValues.image_url;
       const postImgSplitName = postImgUrl.split("/");
 
-      // console.log(postImgSplitName[postImgSplitName.length - 1]);
-
       fs.unlinkSync(
         __dirname +
           "/../public/posts/" +
@@ -133,18 +139,23 @@ const postControllers = {
     try {
       const { post_id, user_id } = req.params;
 
-      const [likedPost, createLike] = await Like.findOrCreate({
+      const hasUserLikeThePost = await Like.findOne({
         where: {
-          post_id,
           user_id,
+          post_id,
         },
       });
 
-      if (!createLike) {
+      if (hasUserLikeThePost) {
         return res.status(400).json({
           message: "User has liked the post",
         });
       }
+
+      const likePost = await Like.create({
+        post_id,
+        user_id: req.token.id,
+      });
 
       await Post.increment({ like_count: 1 }, { where: { id: post_id } });
 
@@ -174,7 +185,7 @@ const postControllers = {
 
       const deleteLike = await Like.destroy({
         where: {
-          user_id,
+          user_id: req.token.id,
           post_id,
         },
       });

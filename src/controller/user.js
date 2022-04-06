@@ -1,5 +1,6 @@
 const { User, Post } = require("../lib/sequelize");
 const fs = require("fs");
+const serverErrorHandler = require("../lib/serverErrorHandler");
 
 const userControllers = {
   getUsers: async (req, res) => {
@@ -35,9 +36,6 @@ const userControllers = {
       const uploadeFileDomain = process.env.UPLOAD_FILE_DOMAIN;
       const filePath = `avatar_images`; // based on the middleware
       const filename = req.file?.filename;
-
-      if (req.file) {
-      }
 
       let isUsernameUnique;
 

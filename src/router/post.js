@@ -16,7 +16,15 @@ router.post(
 );
 router.patch("/:id", authorizedLoggedInUser, postControllers.editPost);
 router.delete("/:id", authorizedLoggedInUser, postControllers.deletePost);
-router.post("/:post_id/likes/:user_id", postControllers.incrementPostLikes);
-router.delete("/:post_id/likes/:user_id", postControllers.decrementPostLikes);
+router.post(
+  "/:post_id/likes/:user_id",
+  authorizedLoggedInUser,
+  postControllers.incrementPostLikes
+);
+router.delete(
+  "/:post_id/likes/:user_id",
+  authorizedLoggedInUser,
+  postControllers.decrementPostLikes
+);
 
 module.exports = router;
