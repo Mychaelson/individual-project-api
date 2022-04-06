@@ -77,6 +77,27 @@ const userControllers = {
       serverErrorHandler(err, req, res);
     }
   },
+  getMyProfile: async (req, res) => {
+    try {
+      const { id } = req.token;
+
+      const myProfileData = await User.findByPk(id, {
+        include: [
+          {
+            model: Post,
+            as: "user_posts",
+          },
+        ],
+      });
+
+      return res.status(200).json({
+        message: "User Found",
+        profile: myProfileData,
+      });
+    } catch (err) {
+      serverErrorHandler(err, req, res);
+    }
+  },
 };
 
 module.exports = userControllers;
