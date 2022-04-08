@@ -2,7 +2,10 @@ const { User, Password } = require("../lib/sequelize");
 const serverErrorHandler = require("../lib/serverErrorHandler");
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
-const { generateToken } = require("../lib/jwt");
+const { generateToken, verifyToken } = require("../lib/jwt");
+const fs = require("fs");
+const mustache = require("mustache");
+const mailer = require("../lib/mailer");
 
 const authControllers = {
   registerUser: async (req, res) => {
@@ -35,6 +38,33 @@ const authControllers = {
       const addUserPassword = await Password.create({
         password: hashedPassword,
         user_id: registerUser.id,
+      });
+
+      // Verification email
+      const verificationToken = generateToken(
+        {
+          id: registerUser.id,
+          isEmailVerification: true,
+        },
+        "1h"
+      );
+
+      const verificationLink = `http://localhost:2000/auth/verify/${verificationToken}`;
+
+      const template = fs
+        .readFileSync(__dirname + "/../templates/verify.html")
+        .toString();
+
+      const renderedTemplate = mustache.render(template, {
+        username,
+        verify_url: verificationLink,
+        full_name,
+      });
+
+      await mailer({
+        to: email,
+        subject: "Verify your account!",
+        html: renderedTemplate,
       });
 
       return res.status(200).json({
@@ -108,6 +138,43 @@ const authControllers = {
       serverErrorHandler(err, req, res);
     }
   },
+  verifyUser: async (req, res) => {
+    try {
+      const { token } = req.params;
+
+      const isTokenVerified = await verifyToken(token);
+
+      if (!isTokenVerified || !isTokenVerified.isEmailVerification) {
+        return res.status(400).json({
+          message: "Token invalid!",
+        });
+      }
+
+      await User.update(
+        { is_verified: true },
+        {
+          where: {
+            id: isTokenVerified.id,
+          },
+        }
+      );
+
+      // return res.status(200).json({
+      //   message: "User verified!"
+      // })
+
+      return res.redirect(
+        `http://localhost:3000/verification-success?referral=${token}`
+      );
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server error",
+      });
+    }
+  },
 };
+
+// TODO: Email for verification
 
 module.exports = authControllers;
