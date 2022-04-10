@@ -173,6 +173,54 @@ const authControllers = {
       });
     }
   },
+  resendVerificationEmail: async (req, res) => {
+    try {
+      const userId = req.token.id;
+
+      const findUserById = await User.findByPk(userId);
+
+      if (findUserById.is_verified) {
+        return res.status(400).json({
+          message: "User had been verified",
+        });
+      }
+
+      const verificationToken = generateToken(
+        {
+          id: userId,
+          isEmailVerification: true,
+        },
+        "1h"
+      );
+
+      const verificationLink = `http://localhost:2000/auth/verify/${verificationToken}`;
+
+      const template = fs
+        .readFileSync(__dirname + "/../templates/verify.html")
+        .toString();
+
+      const renderedTemplate = mustache.render(template, {
+        username: findUserById.username,
+        verify_url: verificationLink,
+        full_name: findUserById.full_name,
+      });
+
+      await mailer({
+        to: findUserById.email,
+        subject: "Verify your account!",
+        html: renderedTemplate,
+      });
+
+      return res.status(200).json({
+        message: "Email sent",
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error",
+      });
+    }
+  },
 };
 
 // TODO: Email for verification
