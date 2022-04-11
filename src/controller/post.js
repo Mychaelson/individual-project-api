@@ -28,6 +28,7 @@ const postControllers = {
             model: Comment,
             include: User,
             limit: 5,
+            order: [["createdAt", "DESC"]],
           },
           {
             model: User,
@@ -38,7 +39,7 @@ const postControllers = {
             required: false,
           },
         ],
-        // distinct: true,
+        distinct: true,
         order: _sortBy ? [[_sortBy, _sortDir]] : undefined,
       });
 

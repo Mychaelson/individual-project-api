@@ -1,4 +1,4 @@
-const { User, Password } = require("../lib/sequelize");
+const { User, Password, ForgotPasswordToken } = require("../lib/sequelize");
 const serverErrorHandler = require("../lib/serverErrorHandler");
 const { Op } = require("sequelize");
 const bcrypt = require("bcrypt");
@@ -6,6 +6,8 @@ const { generateToken, verifyToken } = require("../lib/jwt");
 const fs = require("fs");
 const mustache = require("mustache");
 const mailer = require("../lib/mailer");
+const { nanoid } = require("nanoid");
+const moment = require("moment");
 
 const authControllers = {
   registerUser: async (req, res) => {
@@ -218,6 +220,104 @@ const authControllers = {
       console.log(err);
       return res.status(500).json({
         message: "Server Error",
+      });
+    }
+  },
+  sendForgotPasswordEmail: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      const findUser = await User.findOne({
+        where: {
+          email,
+        },
+      });
+
+      const passwordToken = nanoid(40);
+
+      await ForgotPasswordToken.update(
+        { is_valid: false },
+        {
+          where: {
+            user_id: findUser.id,
+            is_valid: true,
+          },
+        }
+      );
+
+      await ForgotPasswordToken.create({
+        token: passwordToken,
+        valid_until: moment().add(1, "hour"),
+        is_valid: true,
+        user_id: findUser.id,
+      });
+
+      const forgotPasswordLink = `http://localhost:3000/forgot-password?fp_token=${passwordToken}`;
+
+      const template = fs
+        .readFileSync(__dirname + "/../templates/forgot.html")
+        .toString();
+
+      const renderedTemplate = mustache.render(template, {
+        username: findUser.username,
+        forgot_password_url: forgotPasswordLink,
+        full_name: findUser.full_name,
+      });
+
+      await mailer({
+        to: findUser.email,
+        subject: "Forgot password!",
+        html: renderedTemplate,
+      });
+
+      return res.status(201).json({
+        message: "Email has been sent",
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server error",
+      });
+    }
+  },
+  changeUserForgotPassword: async (req, res) => {
+    try {
+      const { password, forgotPasswordToken } = req.body;
+
+      const findToken = await ForgotPasswordToken.findOne({
+        where: {
+          token: forgotPasswordToken,
+          is_valid: true,
+          valid_until: {
+            [Op.gt]: moment().utc(),
+          },
+        },
+      });
+
+      if (!findToken) {
+        return res.status(400).json({
+          message: "Invalid token",
+        });
+      }
+
+      const hashedPassword = bcrypt.hashSync(password, 5);
+
+      await Password.update(
+        { password: hashedPassword },
+        {
+          where: {
+            user_id: findToken.user_id,
+          },
+        }
+      );
+
+      return res.status(200).json({
+        message: "Change password success",
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server error",
       });
     }
   },

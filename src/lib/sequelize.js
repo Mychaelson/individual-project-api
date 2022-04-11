@@ -16,6 +16,9 @@ const User = require("../models/user")(sequelize);
 const Password = require("../models/password")(sequelize);
 const Like = require("../models/like")(sequelize);
 const Comment = require("../models/comment")(sequelize);
+const ForgotPasswordToken = require("../models/forgot_password_token")(
+  sequelize
+);
 
 // relationship of the models
 
@@ -49,6 +52,10 @@ Post.hasMany(Comment, { foreignKey: "post_id" });
 Comment.belongsTo(User, { foreignKey: "user_id" });
 User.hasMany(Comment, { foreignKey: "user_id" });
 
+// between forget password token and the user (1:M)
+ForgotPasswordToken.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(ForgotPasswordToken, { foreignKey: "user_id" });
+
 module.exports = {
   sequelize,
   Post,
@@ -56,4 +63,5 @@ module.exports = {
   Comment,
   Like,
   Password,
+  ForgotPasswordToken,
 };

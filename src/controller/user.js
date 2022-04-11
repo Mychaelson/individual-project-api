@@ -17,6 +17,7 @@ const userControllers = {
             as: "user_posts",
           },
         ],
+        order: [[{ model: Post, as: "user_posts" }, "createdAt", "DESC"]], // ini masih salah
       });
 
       return res.status(200).json({
@@ -88,6 +89,7 @@ const userControllers = {
             as: "user_posts",
           },
         ],
+        order: [[{ model: Post, as: "user_posts" }, "createdAt", "DESC"]],
       });
 
       return res.status(200).json({
