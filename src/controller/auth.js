@@ -78,11 +78,11 @@ const authControllers = {
   },
   loginUser: async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { credential, password } = req.body;
 
       const findUser = await User.findOne({
         where: {
-          username,
+          [Op.or]: [{ username: credential }, { email: credential }],
         },
         include: Password,
       });
@@ -233,6 +233,12 @@ const authControllers = {
         },
       });
 
+      if (!findUser) {
+        return res.status(400).json({
+          message: "No User Found!",
+        });
+      }
+
       const passwordToken = nanoid(40);
 
       await ForgotPasswordToken.update(
@@ -252,7 +258,7 @@ const authControllers = {
         user_id: findUser.id,
       });
 
-      const forgotPasswordLink = `http://localhost:3000/forgot-password?fp_token=${passwordToken}`;
+      const forgotPasswordLink = `http://localhost:3000/reset-password?fp_token=${passwordToken}`;
 
       const template = fs
         .readFileSync(__dirname + "/../templates/forgot.html")
