@@ -24,8 +24,6 @@ const fileUploader = ({
 
     // determines wheter the file is allowed to be uploaded or not
     fileFilter: (req, file, cb) => {
-      console.log(file);
-
       // check if file is img
       if (file.mimetype.split("/")[0] != fileType) {
         return cb(null, false);
