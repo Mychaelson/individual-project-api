@@ -1,103 +1,55 @@
 const { User, Post } = require("../lib/sequelize");
 const fs = require("fs");
 const serverErrorHandler = require("../lib/serverErrorHandler");
+const UserService = require("../services/user");
 
 const userControllers = {
   getUsers: async (req, res) => {
     try {
-      const { user_id } = req.query;
+      const serviceResult = await UserService.getUser(req);
 
-      const getUserProfile = await User.findOne({
-        where: {
-          id: user_id,
-        },
-        include: [
-          {
-            model: Post,
-            as: "user_posts",
-          },
-        ],
-        order: [[{ model: Post, as: "user_posts" }, "createdAt", "DESC"]], // ini masih salah
-      });
+      if (!serviceResult.success) throw serviceResult;
 
-      return res.status(200).json({
-        message: "User Found",
-        profile: getUserProfile,
-        // posts,
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        profile: serviceResult.data,
       });
     } catch (err) {
-      serverErrorHandler(err, req, res);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
     }
   },
   editUser: async (req, res) => {
     try {
-      const { id } = req.params;
-      const { full_name, bio, username } = req.body;
+      const serviceResult = await UserService.editUser(req);
 
-      const uploadeFileDomain = process.env.UPLOAD_FILE_DOMAIN;
-      const filePath = `avatar_images`; // based on the middleware
-      const filename = req.file?.filename;
+      if (!serviceResult.success) throw serviceResult;
 
-      let isUsernameUnique;
-
-      if (username) {
-        isUsernameUnique = await User.findOne({
-          where: {
-            username,
-          },
-        });
-      }
-
-      if (isUsernameUnique) {
-        return res.status(400).json({
-          message: "Username has been taken",
-        });
-      }
-
-      const editProfile = await User.update(
-        {
-          avatar_img: req.file
-            ? `${uploadeFileDomain}/${filePath}/${filename}`
-            : undefined, // klo ada bru masuk
-          full_name,
-          bio,
-          username,
-        },
-        {
-          where: {
-            id,
-          },
-        }
-      );
-
-      res.status(200).json({
-        message: "profile successfully edited",
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        profile: serviceResult.data,
       });
     } catch (err) {
-      fs.unlinkSync(__dirname + "/../public/posts/" + req.file.filename);
-      serverErrorHandler(err, req, res);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
     }
   },
   getMyProfile: async (req, res) => {
     try {
-      const { id } = req.token;
+      const serviceResult = await UserService.getMyProfile(req);
 
-      const myProfileData = await User.findByPk(id, {
-        include: [
-          {
-            model: Post,
-            as: "user_posts",
-          },
-        ],
-        order: [[{ model: Post, as: "user_posts" }, "createdAt", "DESC"]],
-      });
+      if (!serviceResult.success) throw serviceResult;
 
-      return res.status(200).json({
-        message: "User Found",
-        profile: myProfileData,
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        profile: serviceResult.data,
       });
     } catch (err) {
-      serverErrorHandler(err, req, res);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
     }
   },
 };
