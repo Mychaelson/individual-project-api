@@ -1,6 +1,3 @@
-const { User, Post } = require("../lib/sequelize");
-const fs = require("fs");
-const serverErrorHandler = require("../lib/serverErrorHandler");
 const UserService = require("../services/user");
 
 const userControllers = {

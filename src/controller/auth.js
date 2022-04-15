@@ -1,13 +1,3 @@
-const { User, Password, ForgotPasswordToken } = require("../lib/sequelize");
-const serverErrorHandler = require("../lib/serverErrorHandler");
-const { Op } = require("sequelize");
-const bcrypt = require("bcrypt");
-const { generateToken, verifyToken } = require("../lib/jwt");
-const fs = require("fs");
-const mustache = require("mustache");
-const mailer = require("../lib/mailer");
-const { nanoid } = require("nanoid");
-const moment = require("moment");
 const AuthService = require("../services/auth");
 
 const authControllers = {

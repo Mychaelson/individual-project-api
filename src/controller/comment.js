@@ -1,5 +1,3 @@
-const { Comment, User } = require("../lib/sequelize");
-const serverErrorHandler = require("../lib/serverErrorHandler");
 const CommentService = require("../services/comment");
 
 const commentControllers = {

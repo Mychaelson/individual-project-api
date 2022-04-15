@@ -1,7 +1,3 @@
-const { Post, User, Comment, Like } = require("../lib/sequelize");
-const serverErrorHandler = require("../lib/serverErrorHandler");
-const fs = require("fs");
-const uploadFileDomain = require("../config/uploadFile");
 const PostService = require("../services/post");
 
 const postControllers = {
