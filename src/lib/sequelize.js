@@ -23,8 +23,16 @@ const ForgotPasswordToken = require("../models/forgot_password_token")(
 // relationship of the models
 
 // between post and the owner of the post (1: M)
-Post.belongsTo(User, { foreignKey: "user_id", as: "user_posts" });
-User.hasMany(Post, { foreignKey: "user_id", as: "user_posts" });
+Post.belongsTo(User, {
+  foreignKey: "user_id",
+  as: "user_posts",
+  onDelete: "CASCADE",
+});
+User.hasMany(Post, {
+  foreignKey: "user_id",
+  as: "user_posts",
+  onDelete: "CASCADE",
+});
 
 // between the user and the password for the auth purposes (1:1)
 Password.belongsTo(User, { foreignKey: "user_id" });
@@ -43,12 +51,12 @@ User.belongsToMany(Post, {
 });
 User.hasMany(Like, { foreignKey: "user_id" });
 Like.belongsTo(User, { foreignKey: "user_id" });
-Post.hasMany(Like, { foreignKey: "post_id" });
-Like.belongsTo(Post, { foreignKey: "post_id" });
+Post.hasMany(Like, { foreignKey: "post_id", onDelete: "CASCADE" });
+Like.belongsTo(Post, { foreignKey: "post_id", onDelete: "CASCADE" });
 
 // between the comment and the post also with the people that comment (1:M)
-Comment.belongsTo(Post, { foreignKey: "post_id" });
-Post.hasMany(Comment, { foreignKey: "post_id" });
+Comment.belongsTo(Post, { foreignKey: "post_id", onDelete: "CASCADE" });
+Post.hasMany(Comment, { foreignKey: "post_id", onDelete: "CASCADE" });
 Comment.belongsTo(User, { foreignKey: "user_id" });
 User.hasMany(Comment, { foreignKey: "user_id" });
 

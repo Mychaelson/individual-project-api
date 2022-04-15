@@ -119,7 +119,7 @@ class AuthService extends Service {
       });
 
       return this.handleSuccess({
-        message: "User Added",
+        message: "User Added, please check your email to verify your account",
         statusCode: 201,
       });
     } catch (err) {
