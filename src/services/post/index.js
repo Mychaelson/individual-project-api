@@ -34,13 +34,55 @@ class PostService extends Service {
             model: User,
             as: "post_like",
             where: {
-              id: req.token.id,
+              id: req?.token?.id || 0,
             },
             required: false,
           },
         ],
         distinct: true,
         order: _sortBy ? [[_sortBy, _sortDir]] : undefined,
+      });
+
+      if (!result.rows.length) {
+        return this.handleError({
+          statusCode: 400,
+          message: "There are no post yet!",
+        });
+      }
+
+      return this.handleSuccess({
+        statusCode: 200,
+        message: "Find all post!",
+        data: result,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getPostWithoutLike = async (req) => {
+    try {
+      const result = await Post.findAndCountAll({
+        where: {
+          ...req.query,
+        },
+        include: [
+          {
+            model: User,
+            as: "user_posts",
+          },
+          {
+            model: Comment,
+            include: User,
+            limit: 5,
+            order: [["createdAt", "DESC"]],
+          },
+        ],
+        distinct: true,
       });
 
       if (!result.rows.length) {
@@ -160,13 +202,46 @@ class PostService extends Service {
     }
   };
 
+  static checkUserLikedPost = async (req) => {
+    try {
+      const { post_id } = req.query;
+      const user_id = req.token.id;
+
+      const userHasLikedPost = await Like.findOne({
+        where: {
+          post_id,
+          user_id,
+        },
+      });
+
+      if (!userHasLikedPost) {
+        return this.handleError({
+          message: "User have not like the post",
+          statusCode: "400",
+        });
+      }
+
+      return this.handleSuccess({
+        message: "User has Liked the post",
+        statusCode: 200,
+        data: userHasLikedPost,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
   static incrementPostLikes = async (req) => {
     try {
       const { post_id, user_id } = req.params;
 
       const hasUserLikeThePost = await Like.findOne({
         where: {
-          user_id,
+          user_id: req.token.id,
           post_id,
         },
       });
@@ -204,7 +279,7 @@ class PostService extends Service {
 
       const hasUserLikeThePost = await Like.findOne({
         where: {
-          user_id,
+          user_id: req.token.id,
           post_id,
         },
       });

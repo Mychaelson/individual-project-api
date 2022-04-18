@@ -63,7 +63,7 @@ class AuthService extends Service {
 
   static registerUser = async (req) => {
     try {
-      const { username, full_name, email, password } = req.body;
+      const { username, email, password } = req.body;
 
       const isUsernameAndEmailTaken = await User.findOne({
         where: {
@@ -82,7 +82,6 @@ class AuthService extends Service {
 
       const registerUser = await User.create({
         username,
-        full_name,
         email,
       });
 
@@ -109,7 +108,6 @@ class AuthService extends Service {
       const renderedTemplate = mustache.render(template, {
         username,
         verify_url: verificationLink,
-        full_name,
       });
 
       await mailer({
@@ -219,7 +217,6 @@ class AuthService extends Service {
       const renderedTemplate = mustache.render(template, {
         username: findUserById.username,
         verify_url: verificationLink,
-        full_name: findUserById.full_name,
       });
 
       await mailer({
@@ -286,7 +283,6 @@ class AuthService extends Service {
       const renderedTemplate = mustache.render(template, {
         username: findUser.username,
         forgot_password_url: forgotPasswordLink,
-        full_name: findUser.full_name,
       });
 
       await mailer({

@@ -4,6 +4,9 @@ const fileUploader = require("../lib/uploader");
 const { authorizedLoggedInUser } = require("../middleware/authMiddleware");
 
 router.get("/", authorizedLoggedInUser, postControllers.getAllPost);
+
+router.get("/getPostWithoutLike", postControllers.getAllPostWithoutLike);
+
 router.post(
   "/",
   authorizedLoggedInUser,
@@ -16,6 +19,11 @@ router.post(
 );
 router.patch("/:id", authorizedLoggedInUser, postControllers.editPost);
 router.delete("/:id", authorizedLoggedInUser, postControllers.deletePost);
+router.get(
+  "/userLikedPost",
+  authorizedLoggedInUser,
+  postControllers.checkUserLikedPost
+);
 router.post(
   "/:post_id/likes/:user_id",
   authorizedLoggedInUser,
