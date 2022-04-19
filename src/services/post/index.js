@@ -312,6 +312,38 @@ class PostService extends Service {
       });
     }
   };
+
+  static getPostUserLiked = async (req) => {
+    try {
+      const { user_id } = req.params;
+
+      const LikedPost = await Like.findAndCountAll({
+        where: {
+          user_id,
+        },
+        include: Post,
+      });
+
+      if (!LikedPost) {
+        return this.handleError({
+          message: "You haven't like any post",
+          statusCode: 400,
+        });
+      }
+
+      return this.handleSuccess({
+        message: "Post User has liked",
+        statusCode: 200,
+        data: LikedPost,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
 module.exports = PostService;

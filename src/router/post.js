@@ -35,4 +35,10 @@ router.delete(
   postControllers.decrementPostLikes
 );
 
+router.get(
+  "/get_post_user_liked/:user_id",
+  authorizedLoggedInUser,
+  postControllers.getPostUserLiked
+);
+
 module.exports = router;
