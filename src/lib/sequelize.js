@@ -1,6 +1,7 @@
 const { Sequelize } = require("sequelize");
 const mysqlConfig = require("../config/database");
 
+// initialization of sequelize (orm for mysql)
 const sequelize = new Sequelize({
   username: mysqlConfig.MYSQL_USERNAME,
   password: mysqlConfig.MYSQL_PASSWORD,

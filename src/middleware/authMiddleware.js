@@ -2,12 +2,15 @@ const { verifyToken } = require("../lib/jwt");
 const fs = require("fs");
 const moment = require("moment");
 
+// the authorize loggedin user is used to only access the user that have loggedin using a token
+// if the token exists, it will be process and give the information about the token, which in this case is user id
 const authorizedLoggedInUser = (req, res, next) => {
   try {
     const token = req.headers.authorization;
 
     // console.log(token);
 
+    // the token verivy function is use to decode the token
     const verifiedToken = verifyToken(token);
     req.token = verifiedToken;
 
