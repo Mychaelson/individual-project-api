@@ -7,6 +7,8 @@ router.get("/", authorizedLoggedInUser, postControllers.getAllPost);
 
 router.get("/getPostWithoutLike", postControllers.getAllPostWithoutLike);
 
+// for the post, the user will need to upload a file which need to be kept at the API
+// the incloming file will be handle bay the middleware called file uploaded
 router.post(
   "/",
   authorizedLoggedInUser,

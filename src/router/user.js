@@ -5,6 +5,8 @@ const { authorizedLoggedInUser } = require("../middleware/authMiddleware");
 const router = require("express").Router();
 
 router.get("/", userControllers.getUsers);
+
+// the profile picture uploaded by the user will be handled by fileuploader middleware
 router.patch(
   "/:id",
   fileUploader({
