@@ -1,8 +1,13 @@
 const AuthService = require("../services/auth");
 
+// the controllers is fuction as a responsed sender
+// meaning that logic will be runned on their repective service and based on the respond of the service, the respond will be send accordingly
+// there are three types of responds which are success, error, and redirect
+
 const authControllers = {
   registerUser: async (req, res) => {
     try {
+      // the req will also be send to let the service get the data on the request from front end
       const serviceResult = await AuthService.registerUser(req);
 
       if (!serviceResult.success) throw serviceResult;
