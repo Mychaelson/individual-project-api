@@ -6,6 +6,8 @@ class UserService extends Service {
     try {
       const { user_id } = req.query;
 
+      // to get user data, user id will be recived and search, it will also include the post, posted by the user based on the id
+
       const getUserProfile = await User.findOne({
         where: {
           id: user_id,
@@ -38,10 +40,12 @@ class UserService extends Service {
       const { id } = req.params;
       const { full_name, bio, username } = req.body;
 
+      // this is to set the name of the file, which the three variable combine can be use to access the file
       const uploadeFileDomain = process.env.UPLOAD_FILE_DOMAIN;
       const filePath = `avatar_images`; // based on the middleware
       const filename = req.file?.filename;
 
+      // check if username has been taken
       let isUsernameUnique;
 
       if (username) {
@@ -59,6 +63,7 @@ class UserService extends Service {
         });
       }
 
+      // if username has not been taken, the user profile will be edited
       const editProfile = await User.update(
         {
           avatar_img: req.file
@@ -92,6 +97,8 @@ class UserService extends Service {
   static getMyProfile = async (req) => {
     try {
       const { id } = req.token;
+
+      // the same concept as get profile, but this is using token, which means the data will belong to the user logged in
 
       const myProfileData = await User.findByPk(id, {
         include: [

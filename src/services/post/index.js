@@ -13,6 +13,7 @@ class PostService extends Service {
       delete req.query._sortBy;
       delete req.query._sortDir;
 
+      // bcs the query above can tbe included in the where query, it must be kept in a variable and delete from the req.query
       const result = await Post.findAndCountAll({
         where: {
           ...req.query,
@@ -39,7 +40,7 @@ class PostService extends Service {
             required: false,
           },
         ],
-        distinct: true,
+        distinct: true, // this is to ensure the count is unique
         order: _sortBy ? [[_sortBy, _sortDir]] : undefined,
       });
 
@@ -66,6 +67,8 @@ class PostService extends Service {
 
   static getPostWithoutLike = async (req) => {
     try {
+      // this is similr to the above endpoint with the difference in the includes, this end point didnot have like model included,
+      // it is because the like model will have to get the data from toekn which this end piont will not receive
       const result = await Post.findAndCountAll({
         where: {
           ...req.query,
@@ -109,6 +112,8 @@ class PostService extends Service {
   static createNewPost = async (req) => {
     try {
       const { caption, location, user_id } = req.body;
+
+      // the file will be accepted by the middleware and the variables below is used to get the file url
 
       const uploadeFileDomain = uploadFileDomain;
       const filePath = `post_images`;
@@ -168,11 +173,19 @@ class PostService extends Service {
     try {
       const { id } = req.params;
 
+      // check if the post belongs to the user that want to delete the post
       const findPost = await Post.findOne({
         where: {
           id,
         },
       });
+
+      if (!findPost) {
+        this.handleError({
+          message: "The post does not belong to the user logged in",
+          statusCode: 400,
+        });
+      }
 
       const deletePost = await Post.destroy({
         where: {
@@ -181,6 +194,7 @@ class PostService extends Service {
         },
       });
 
+      // this it to delete the file from the API, to clean up space
       const postImgUrl = findPost.dataValues.image_url;
       const postImgSplitName = postImgUrl.split("/");
 
@@ -206,6 +220,8 @@ class PostService extends Service {
     try {
       const { post_id } = req.query;
       const user_id = req.token.id;
+
+      // check if the user has liked a particular post for detail post
 
       const userHasLikedPost = await Like.findOne({
         where: {
@@ -239,6 +255,8 @@ class PostService extends Service {
     try {
       const { post_id, user_id } = req.params;
 
+      // check if the post has been liked, protection in the backend
+
       const hasUserLikeThePost = await Like.findOne({
         where: {
           user_id: req.token.id,
@@ -253,11 +271,13 @@ class PostService extends Service {
         });
       }
 
+      // if the user has not liked the post, then the like will be added
       const likePost = await Like.create({
         post_id,
         user_id: req.token.id,
       });
 
+      // the like_count will also decrement
       await Post.increment({ like_count: 1 }, { where: { id: post_id } });
 
       return this.handleSuccess({
@@ -277,6 +297,7 @@ class PostService extends Service {
     try {
       const { user_id, post_id } = req.params;
 
+      // the same as like, if the user has not liked the post, it will resulted in error if the user try to dislike a post
       const hasUserLikeThePost = await Like.findOne({
         where: {
           user_id: req.token.id,
@@ -315,6 +336,7 @@ class PostService extends Service {
 
   static getPostUserLiked = async (req) => {
     try {
+      // get the post that has been liked by the user that is logged in
       const { user_id } = req.params;
 
       const LikedPost = await Like.findAndCountAll({

@@ -6,6 +6,10 @@ class CommentService extends Service {
     try {
       const { _limit = 5, _page = 1 } = req.query;
 
+      // for the comment, there will be pagination
+      // all of the request such as the limit and page will be receive through query
+      // the limit and page msut be deleted before it is putted in the where query
+
       delete req.query._limit;
       delete req.query._page;
 
@@ -46,6 +50,9 @@ class CommentService extends Service {
   static postNewComment = async (req) => {
     try {
       const { post_id, user_id, comment } = req.body;
+
+      // the post id and new comment will be receive throug body
+      // for the user id, it will be taken from token as this endpoint has been prottected using middleware taht will also decrypt the token
 
       const newComment = await Comment.create({
         comment,

@@ -14,6 +14,9 @@ class AuthService extends Service {
     try {
       const { credential, password } = req.body;
 
+      // it will recieve either an email or username, and it will be set as credential
+      // to find the user, the or operator will be use
+
       const findUser = await User.findOne({
         where: {
           [Op.or]: [{ username: credential }, { email: credential }],
@@ -28,6 +31,7 @@ class AuthService extends Service {
         });
       }
 
+      //  if the user based on the credential exist, the password will be compared
       const isPasswordCorrect = bcrypt.compareSync(
         password,
         findUser.password.password
@@ -41,6 +45,8 @@ class AuthService extends Service {
       }
 
       delete findUser.dataValues.password;
+
+      // then if password is true, token and the user data will be send to front end trough controllers
 
       const token = generateToken({ id: findUser.id });
 
@@ -65,6 +71,8 @@ class AuthService extends Service {
     try {
       const { username, email, password } = req.body;
 
+      //  the username and email must be unique, therefore there will be a proccess of checking wheter the email or username has already existed
+
       const isUsernameAndEmailTaken = await User.findOne({
         where: {
           [Op.or]: [{ username }, { email }],
@@ -78,6 +86,7 @@ class AuthService extends Service {
         });
       }
 
+      // if username or email doesn't exist, the password will be hashed and created in the database
       const hashedPassword = bcrypt.hashSync(password, 5);
 
       const registerUser = await User.create({
@@ -91,6 +100,7 @@ class AuthService extends Service {
       });
 
       // Verification email
+      // verification email will also be send to the user based in the registed email
       const verificationToken = generateToken(
         {
           id: registerUser.id,
@@ -105,6 +115,7 @@ class AuthService extends Service {
         .readFileSync(__dirname + "/../../templates/verify.html")
         .toString();
 
+      // the mustache is use to edit the html which is used as a email template which contain the username and a link
       const renderedTemplate = mustache.render(template, {
         username,
         verify_url: verificationLink,
@@ -133,6 +144,9 @@ class AuthService extends Service {
     try {
       const { token } = req;
 
+      // token will be receive and regenerated to be send along with the used data based on the user id in the token
+      // use to relogin the user
+
       const renewedToken = generateToken({ id: token.id });
 
       const findUser = await User.findByPk(token.id);
@@ -158,6 +172,7 @@ class AuthService extends Service {
 
   static verifyUser = async (req) => {
     try {
+      // to change the user verifiedn status, the req will include a valid token and is an verification token
       const { token } = req.params;
 
       const isTokenVerified = await verifyToken(token);
@@ -166,6 +181,7 @@ class AuthService extends Service {
         return this.handleError({ message: "Token invalid!", statusCode: 400 });
       }
 
+      // if the token valid, the status will be change to verify and the user will be redirected to a page
       await User.update(
         { is_verified: true },
         {
@@ -189,6 +205,7 @@ class AuthService extends Service {
 
   static resendVerificationEmail = async (req) => {
     try {
+      // this process is similar to the registration function with out the registration
       const userId = req.token.id;
 
       const findUserById = await User.findByPk(userId);
@@ -241,6 +258,7 @@ class AuthService extends Service {
   static sendForgotPasswordEmail = async (req) => {
     try {
       const { email } = req.body;
+      // the user will inout their email and the email will be check
 
       const findUser = await User.findOne({
         where: {
@@ -254,6 +272,8 @@ class AuthService extends Service {
           message: "No User Found!",
         });
       }
+
+      // if the email is correct, then a token will be generated and all the previous token will be invalidate
 
       const passwordToken = nanoid(40);
 
@@ -273,6 +293,8 @@ class AuthService extends Service {
         is_valid: true,
         user_id: findUser.id,
       });
+
+      // then an email will be sent, contaning a link to a page to reset password
 
       const forgotPasswordLink = `http://localhost:3000/reset-password?fp_token=${passwordToken}`;
 
@@ -308,6 +330,8 @@ class AuthService extends Service {
     try {
       const { password, forgotPasswordToken } = req.body;
 
+      // the password and a token will be recieve through body, then the token will be ckeck whether it is valid or not
+
       const findToken = await ForgotPasswordToken.findOne({
         where: {
           token: forgotPasswordToken,
@@ -328,6 +352,8 @@ class AuthService extends Service {
           message: "Invalid token",
         });
       }
+
+      // if the token is valid, then the password will be hashed and updated based on the user id gotten from the token
 
       const hashedPassword = bcrypt.hashSync(password, 5);
 
