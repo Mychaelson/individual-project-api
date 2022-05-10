@@ -126,9 +126,36 @@ class PostService extends Service {
         user_id: req.token.id,
       });
 
+      const newPostData = await Post.findOne({
+        where: {
+          id: newPost.id,
+        },
+        include: [
+          {
+            model: User,
+            as: "user_posts",
+          },
+          {
+            model: Comment,
+            include: User,
+            limit: 5,
+            order: [["createdAt", "DESC"]],
+          },
+          {
+            model: User,
+            as: "post_like",
+            where: {
+              id: req?.token?.id || 0,
+            },
+            required: false,
+          },
+        ],
+      });
+
       return this.handleSuccess({
         message: "Create Post Successful!",
         statusCode: 201,
+        data: newPostData,
       });
     } catch (err) {
       fs.unlinkSync(__dirname + "/../../public/posts/" + req.file.filename);
@@ -277,12 +304,39 @@ class PostService extends Service {
         user_id: req.token.id,
       });
 
-      // the like_count will also decrement
+      // the like_count will also increment
       await Post.increment({ like_count: 1 }, { where: { id: post_id } });
+
+      const post = await Post.findOne({
+        where: {
+          id: post_id,
+        },
+        include: [
+          {
+            model: User,
+            as: "user_posts",
+          },
+          {
+            model: Comment,
+            include: User,
+            limit: 5,
+            order: [["createdAt", "DESC"]],
+          },
+          {
+            model: User,
+            as: "post_like",
+            where: {
+              id: req?.token?.id || 0,
+            },
+            required: false,
+          },
+        ],
+      });
 
       return this.handleSuccess({
         message: "Like Added!",
         statusCode: 200,
+        data: post,
       });
     } catch (err) {
       console.log(err);
@@ -321,9 +375,36 @@ class PostService extends Service {
 
       await Post.increment({ like_count: -1 }, { where: { id: post_id } });
 
+      const post = await Post.findOne({
+        where: {
+          id: post_id,
+        },
+        include: [
+          {
+            model: User,
+            as: "user_posts",
+          },
+          {
+            model: Comment,
+            include: User,
+            limit: 5,
+            order: [["createdAt", "DESC"]],
+          },
+          {
+            model: User,
+            as: "post_like",
+            where: {
+              id: req?.token?.id || 0,
+            },
+            required: false,
+          },
+        ],
+      });
+
       return this.handleSuccess({
         message: "Like Deleted!",
         statusCode: 200,
+        data: post,
       });
     } catch (err) {
       console.log(err);
